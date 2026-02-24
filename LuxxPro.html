@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LuxxPro AL - Mobile Attendance</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f1f5f9;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .navy-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+        }
+
+        .tab-active {
+            color: #1e3a8a;
+        }
+        
+        .tab-active i {
+            transform: translateY(-4px);
+            color: #1e3a8a;
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Mencegah zoom otomatis pada input iOS */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-up { animation: slideUp 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-24">
+
+    <!-- TOP HEADER -->
+    <header class="navy-gradient text-white pt-8 pb-12 px-6 rounded-b-[40px] shadow-xl relative overflow-hidden">
+        <div class="relative z-10 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2 rounded-xl backdrop-blur-md">
+                    <i data-lucide="anchor" class="text-yellow-400 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tighter leading-none">LUXXPRO AL</h1>
+                    <p class="text-[8px] font-bold tracking-[0.2em] opacity-70 mt-1 uppercase">Sistem Absensi Digital</p>
+                </div>
+            </div>
+            <div id="header-status" class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                Sistem Aktif
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 -mt-8 px-5 relative z-20">
+        
+        <!-- HALAMAN 1: FORM PRESENSI (USER) -->
+        <div id="page-presensi" class="animate-up">
+            <div class="bg-white rounded-[32px] p-6 card-shadow border border-white">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-extrabold text-slate-800 uppercase tracking-tight">Formulir Laporan</h2>
+                    <div class="text-right">
+                        <p id="live-clock" class="text-xs font-black text-blue-800 tracking-widest">00:00:00</p>
+                        <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Waktu Indonesia Barat</p>
+                    </div>
+                </div>
+
+                <form onsubmit="handleSubmission(event)" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Nama Lengkap / Pangkat / NRP</label>
+                        <input type="text" name="nama" required 
+                            class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 font-semibold text-slate-800 focus:border-blue-800 focus:bg-white outline-none transition-all" 
+                            placeholder="Contoh: Letkol Laut (P) Aditia / 12345/P">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Satuan Kerja (Satker)</label>
+                        <select name="satker" required 
+                            class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 font-semibold text-slate-800 focus:border-blue-800 focus:bg-white outline-none cursor-pointer">
+                            <option value="" disabled selected>Pilih Satker</option>
+                            <optgroup label="Staf Umum Mabesal">
+                                <option>Srenaal (Perencanaan & Anggaran)</option>
+                                <option>Sopsal (Operasi)</option>
+                                <option>Spersal (Personalia)</option>
+                                <option>Slogal (Logistik)</option>
+                                <option>Spotmaral (Potensi Maritim)</option>
+                                <option>Sintelal (Intelijen)</option>
+                                <option>Skomlekal (Komunikasi & Elektronika)</option>
+                            </optgroup>
+                            <optgroup label="Kedinasan & Pusat">
+                                <option>Dispenal (Penerangan)</option>
+                                <option>Diskumdal (Hukum)</option>
+                                <option>Diskesal (Kesehatan)</option>
+                                <option>Dispsial (Psikologi)</option>
+                                <option>Diswatpersal (Perawatan Personel)</option>
+                                <option>Dislitbangal (Penelitian & Pengembangan)</option>
+                                <option>Disinfolahtal (Informasi & Pengolahan Data)</option>
+                                <option>Puspomal (Polisi Militer AL)</option>
+                                <option>Denma Mabesal</option>
+                            </optgroup>
+                            <optgroup label="Komando Utama (Kotama)">
+                                <option>Koarmada RI</option>
+                                <option>Koarmada I (Tanjung Pinang)</option>
+                                <option>Koarmada II (Surabaya)</option>
+                                <option>Koarmada III (Sorong)</option>
+                                <option>Kormar (Korps Marinir)</option>
+                                <option>Kolinlamil</option>
+                                <option>Pushidrosal</option>
+                                <option>Kodiklatal</option>
+                                <option>Puspenerbal</option>
+                                <option>AAL (Akademi Angkatan Laut)</option>
+                                <option>Seskoal</option>
+                            </optgroup>
+                            <optgroup label="Satuan Operasi & Kewilayahan">
+                                <option>Lantamal III Jakarta</option>
+                                <option>Lantamal V Surabaya</option>
+                                <option>Satkor (Satuan Kapal Eskorta)</option>
+                                <option>Satfib (Satuan Kapal Amfibi)</option>
+                                <option>Satsel (Satuan Kapal Selam)</option>
+                                <option>Satran (Satuan Kapal Ranjau)</option>
+                                <option>Satrol (Satuan Kapal Patroli)</option>
+                                <option>Taifib (Intai Amfibi)</option>
+                                <option>Denjaka</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] text-center block">Jam Masuk</label>
+                            <input type="time" name="jam_masuk" required 
+                                class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 font-black text-center text-blue-900 outline-none">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] text-center block">Jam Pulang</label>
+                            <input type="time" name="jam_pulang" required 
+                                class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 font-black text-center text-blue-900 outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full navy-gradient text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-lg shadow-blue-900/20 active:scale-[0.96] transition-all flex items-center justify-center gap-3 mt-4">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        Kirim Absensi
+                    </button>
+                </form>
+            </div>
+            
+            <div class="mt-8 bg-blue-50/50 rounded-3xl p-6 border border-blue-100 flex items-center gap-4">
+                <div class="bg-blue-800 p-3 rounded-2xl text-white">
+                    <i data-lucide="info" class="w-5 h-5"></i>
+                </div>
+                <p class="text-[10px] font-bold text-blue-900/60 leading-relaxed uppercase tracking-wide">
+                    Laporan Anda akan tercatat secara real-time pada database digital LuxxPro AL.
+                </p>
+            </div>
+        </div>
+
+        <!-- HALAMAN 2: DASHBOARD ADMIN -->
+        <div id="page-admin" class="hidden animate-up">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-black text-slate-800 tracking-tight uppercase">Monitoring</h2>
+                <div class="flex gap-2">
+                    <button onclick="exportToCSV()" class="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-blue-800">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="clearAllData()" class="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-red-500">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-white p-5 rounded-[32px] card-shadow border border-white flex flex-col">
+                    <div class="bg-blue-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="users" class="w-5 h-5 text-blue-800"></i>
+                    </div>
+                    <span id="stat-total" class="text-3xl font-black text-slate-800">0</span>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Personel</span>
+                </div>
+                <div class="bg-white p-5 rounded-[32px] card-shadow border border-white flex flex-col">
+                    <div class="bg-emerald-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                    </div>
+                    <span id="stat-satker" class="text-3xl font-black text-slate-800">0</span>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Satker Aktif</span>
+                </div>
+            </div>
+
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 ml-1">Daftar Laporan Terkini</h3>
+            
+            <div id="admin-list" class="space-y-4">
+                <!-- List data absen -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="bg-white rounded-[32px] py-16 px-8 text-center card-shadow border border-dashed border-slate-200">
+                <div class="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="layout-list" class="w-8 h-8 text-slate-200"></i>
+                </div>
+                <h4 class="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Belum ada data masuk</h4>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL PIN -->
+    <div id="modal-pin" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[150] hidden items-center justify-center p-6">
+        <div class="bg-white rounded-[40px] p-8 w-full max-w-xs text-center shadow-2xl animate-up">
+            <div class="w-16 h-16 bg-blue-50 text-blue-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="lock" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-extrabold text-slate-900 mb-1 uppercase tracking-tight">Akses Terbatas</h3>
+            <p class="text-[10px] text-slate-400 mb-6 font-bold uppercase tracking-widest">Masukkan PIN Admin</p>
+            
+            <input type="password" id="input-pin" 
+                class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-center text-xl font-black mb-6 focus:border-blue-800 outline-none" 
+                placeholder="****" maxlength="15">
+            
+            <div class="flex gap-3">
+                <button onclick="closePinModal()" class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold text-xs uppercase text-slate-500">Batal</button>
+                <button onclick="validateAdminPin()" class="flex-1 py-4 navy-gradient text-white rounded-2xl font-bold text-xs uppercase shadow-md">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 px-8 py-4 z-[100] flex justify-around items-center rounded-t-[30px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+        <button onclick="navigateTo('presensi')" id="btn-nav-presensi" class="flex flex-col items-center gap-1 transition-all duration-300 tab-active">
+            <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Presensi</span>
+        </button>
+        
+        <div class="h-8 w-[1px] bg-slate-100"></div>
+
+        <button onclick="checkAdminAccess()" id="btn-nav-admin" class="flex flex-col items-center gap-1 transition-all duration-300 text-slate-300">
+            <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+            <span class="text-[9px] font-black uppercase tracking-tighter">Dashboard</span>
+        </button>
+    </nav>
+
+    <!-- TOAST NOTIF -->
+    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl z-[200] opacity-0 pointer-events-none transition-all duration-500 flex items-center gap-3">
+        <i data-lucide="check" class="text-emerald-400 w-4 h-4"></i>
+        <span id="toast-msg">Sukses</span>
+    </div>
+
+    <script>
+        // Data Global (Lokal)
+        let dataAbsensi = [];
+        const ADMIN_PIN = "Admin123";
+        let isAdminAuthenticated = false;
+
+        // Navigasi Tab
+        function navigateTo(page) {
+            const pagePresensi = document.getElementById('page-presensi');
+            const pageAdmin = document.getElementById('page-admin');
+            const btnPresensi = document.getElementById('btn-nav-presensi');
+            const btnAdmin = document.getElementById('btn-nav-admin');
+
+            if (page === 'admin') {
+                pagePresensi.classList.add('hidden');
+                pageAdmin.classList.remove('hidden');
+                btnAdmin.classList.add('tab-active');
+                btnAdmin.classList.remove('text-slate-300');
+                btnPresensi.classList.remove('tab-active');
+                btnPresensi.classList.add('text-slate-300');
+                renderAdminView();
+            } else {
+                pageAdmin.classList.add('hidden');
+                pagePresensi.classList.remove('hidden');
+                btnPresensi.classList.add('tab-active');
+                btnPresensi.classList.remove('text-slate-300');
+                btnAdmin.classList.remove('tab-active');
+                btnAdmin.classList.add('text-slate-300');
+            }
+            lucide.createIcons();
+        }
+
+        // Security Logic
+        function checkAdminAccess() {
+            if (isAdminAuthenticated) {
+                navigateTo('admin');
+            } else {
+                document.getElementById('modal-pin').classList.remove('hidden');
+                document.getElementById('modal-pin').classList.add('flex');
+                document.getElementById('input-pin').focus();
+            }
+        }
+
+        function closePinModal() {
+            document.getElementById('modal-pin').classList.add('hidden');
+            document.getElementById('modal-pin').classList.remove('flex');
+            document.getElementById('input-pin').value = '';
+        }
+
+        function validateAdminPin() {
+            const input = document.getElementById('input-pin').value;
+            if (input === ADMIN_PIN) {
+                isAdminAuthenticated = true;
+                closePinModal();
+                navigateTo('admin');
+                showToast("Akses Diterima");
+            } else {
+                alert("PIN Salah! Akses ditolak.");
+                document.getElementById('input-pin').value = '';
+            }
+        }
+
+        // Handle Form
+        function handleSubmission(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            
+            const newEntry = {
+                id: Date.now(),
+                nama: fd.get('nama'),
+                satker: fd.get('satker'),
+                masuk: fd.get('jam_masuk'),
+                pulang: fd.get('jam_pulang'),
+                waktuInput: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            dataAbsensi.unshift(newEntry);
+            e.target.reset();
+            showToast("Laporan Berhasil Terkirim!");
+        }
+
+        // Render Admin
+        function renderAdminView() {
+            const listContainer = document.getElementById('admin-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            // Stats
+            document.getElementById('stat-total').innerText = dataAbsensi.length;
+            const uniqueSatker = [...new Set(dataAbsensi.map(item => item.satker))].length;
+            document.getElementById('stat-satker').innerText = uniqueSatker;
+
+            if (dataAbsensi.length === 0) {
+                listContainer.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            listContainer.innerHTML = dataAbsensi.map(item => `
+                <div class="bg-white p-5 rounded-[28px] card-shadow border border-white animate-up">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="space-y-1">
+                            <span class="text-[8px] font-black text-blue-800 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">${item.satker}</span>
+                            <h4 class="font-extrabold text-slate-800 text-sm uppercase leading-tight">${item.nama}</h4>
+                        </div>
+                        <button onclick="deleteData(${item.id})" class="text-slate-200 hover:text-red-500 transition-colors">
+                            <i data-lucide="x-circle" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="bg-slate-50 p-3 rounded-2xl flex flex-col items-center">
+                            <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Mulai</span>
+                            <span class="text-xs font-black text-blue-900">${item.masuk}</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-2xl flex flex-col items-center">
+                            <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Selesai</span>
+                            <span class="text-xs font-black text-blue-900">${item.pulang}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 text-[8px] font-bold text-slate-300 uppercase tracking-widest">
+                        <i data-lucide="history" class="w-3 h-3"></i>
+                        Diterima: ${item.waktuInput} WIB
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteData(id) {
+            if(confirm("Hapus data laporan ini?")) {
+                dataAbsensi = dataAbsensi.filter(i => i.id !== id);
+                renderAdminView();
+                showToast("Data Dihapus");
+            }
+        }
+
+        function clearAllData() {
+            if(confirm("Hapus seluruh laporan hari ini?")) {
+                dataAbsensi = [];
+                renderAdminView();
+                showToast("Data Dibersihkan");
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.style.opacity = '1';
+            t.style.transform = 'translateX(-50%) translateY(20px)';
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(-50%) translateY(0)';
+            }, 3000);
+        }
+
+        function exportToCSV() {
+            if(dataAbsensi.length === 0) return alert("Tidak ada data untuk diekspor.");
+            alert("Fitur ekspor CSV disimulasikan. Data siap diunduh (Log: " + dataAbsensi.length + " entri)");
+        }
+
+        // Live Clock
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                const clock = document.getElementById('live-clock');
+                if (clock) clock.innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB";
+            }, 1000);
+        }
+
+        window.onload = () => {
+            lucide.createIcons();
+            startClock();
+        }
+    </script>
+</body>
+</html>
